@@ -1,0 +1,98 @@
+# ============================================================
+# openenv.yaml — Identity card for the Incident Triage Env
+# The OpenEnv validator reads this file first
+# ============================================================
+
+name: incident-triage-env
+version: "1.0.0"
+title: Incident Log Triage Environment
+description: >
+  An RL environment where an AI agent acts as an SRE engineer.
+  The agent reads server logs, identifies root causes of incidents,
+  and suggests fixes. Tasks range from a single obvious crash
+  to complex multi-service failures with misleading red herrings.
+
+author: ThrishanthHS
+license: apache-2.0
+
+tags:
+  - openenv
+  - rl
+  - agent
+  - sre
+  - devops
+
+# --- What the agent SEES at each step ---
+observation_space:
+  type: object
+  fields:
+    - name: available_services
+      type: "list[str]"
+      description: List of services whose logs the agent can read
+
+    - name: log_content
+      type: str
+      description: Log lines returned by the last action
+
+    - name: action_feedback
+      type: str
+      description: Message telling the agent what happened after its last action
+
+    - name: current_step
+      type: int
+      description: How many steps have been taken so far
+
+    - name: task_id
+      type: str
+      description: Which task is running — easy / medium / hard
+
+    - name: task_description
+      type: str
+      description: Plain English description of what the agent must do
+
+# --- What the agent CAN DO each step ---
+action_space:
+  type: object
+  actions:
+    - name: read_log
+      params: [service_name, num_lines]
+      description: Read recent log lines from one specific service
+
+    - name: search_logs
+      params: [keyword]
+      description: Search across ALL services for a keyword
+
+    - name: diagnose
+      params: [root_cause_service, error_type, explanation]
+      description: Submit a diagnosis — agent says what broke and why
+
+    - name: suggest_fix
+      params: [fix_action]
+      description: Propose a fix after submitting a diagnosis
+
+# --- The 3 tasks the agent must solve ---
+tasks:
+  - id: easy
+    name: Single Service Crash
+    difficulty: easy
+    max_steps: 10
+    description: >
+      One service has crashed with a clear ERROR in its logs.
+      Agent must identify which service crashed and what the error is.
+
+  - id: medium
+    name: Cascading Service Failure
+    difficulty: medium
+    max_steps: 20
+    description: >
+      Three services are connected. One fails and causes the others to fail too.
+      Agent must trace back to the ORIGINAL failing service.
+
+  - id: hard
+    name: Silent Upstream Timeout with Red Herrings
+    difficulty: hard
+    max_steps: 30
+    description: >
+      Five services. Two services log loud fake errors to distract the agent.
+      The real failure is a silent timeout in an upstream service.
+      Agent must ignore the noise and find the true root cause.

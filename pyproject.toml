@@ -1,7 +1,7 @@
-[project]
+﻿[project]
 name = "incident-triage-env"
 version = "1.0.0"
-description = "An RL environment where AI agents act as SRE engineers — triaging server incidents, reading logs, and diagnosing root causes."
+description = "An RL environment where AI agents act as SRE engineers."
 license = {text = "Apache-2.0"}
 requires-python = ">=3.10"
 
@@ -15,10 +15,8 @@ dependencies = [
     "openenv-core>=0.2.0",
 ]
 
-[project.optional-dependencies]
-dev = ["pytest", "requests"]
-
-
+[project.scripts]
+serve = "server.app:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -27,11 +25,5 @@ build-backend = "setuptools.backends.legacy:BuildBackend"
 [tool.openenv]
 name = "incident-triage-env"
 version = "1.0.0"
-
+entry_point = "server.app:main"
 framework = "fastapi"
-
-[project.scripts]
-serve = "api.app:app"
-
-
-entry_point = "api.app:app"
